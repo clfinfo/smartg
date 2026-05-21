@@ -1,0 +1,38 @@
+﻿# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+*.log
+
+# Build output
+frontend/dist/
+backend-node/dist/
+*.local
+
+# Secrets / env files
+*.env
+*.env.*
+
+# Data / uploads
+data/uploads/
+data/smart_reporting.db
+
+# AI / large assets
+AI/
+*.txt
+
+# IDE / editor
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# OS generated files
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak
