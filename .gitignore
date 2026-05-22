@@ -6,7 +6,7 @@ yarn-error.log
 
 # Build output
 frontend/dist/
-backend-node/dist/
+backend/dist/
 *.local
 
 # Secrets / env files

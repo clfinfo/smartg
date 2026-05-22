@@ -1,13 +1,13 @@
-﻿services:
+services:
   frontend:
     type: web
     name: smart-frontend
     env: node
+    branch: main
+    rootDir: frontend
     buildCommand: npm install && npm run build
     startCommand: npm run preview
     staticPublishPath: frontend/dist
-    repo: .
-    branch: main
     envVars:
       - key: VITE_GOOGLE_MAPS_API_KEY
         value: ${VITE_GOOGLE_MAPS_API_KEY}
@@ -17,10 +17,10 @@
     type: web
     name: smart-backend
     env: node
-    buildCommand: cd backend-node && npm install
-    startCommand: cd backend-node && npm run dev
-    repo: .
     branch: main
+    rootDir: backend-node
+    buildCommand: npm install
+    startCommand: npm run dev
     envVars:
       - key: MONGODB_URI
         value: ${MONGODB_URI}
