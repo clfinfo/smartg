@@ -68,4 +68,8 @@ app.get('/', (req, res) => {
 });
 
 // ─── Server Start ───────────────────────────────────────────────────────────
-server.listen(PORT, () => console.log(`Server Running on Port ${PORT}`));
+if (!process.env.VERCEL) {
+  server.listen(PORT, () => console.log(`Server Running on Port ${PORT}`));
+}
+
+module.exports = app;

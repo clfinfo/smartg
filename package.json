@@ -1,0 +1,12 @@
+{
+  "name": "smart-reporting-system-root",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "build": "npm run build -w frontend && node -e \"const fs = require('fs'); if (fs.existsSync('frontend/dist')) { if (fs.existsSync('dist')) fs.rmSync('dist', {recursive:true, force:true}); fs.renameSync('frontend/dist', 'dist'); }\""
+  }
+}
