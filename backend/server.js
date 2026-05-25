@@ -47,7 +47,11 @@ app.use((req, res, next) => {
 });
 
 const uploadDir = path.join(__dirname, process.env.UPLOAD_DIR || 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+} catch (err) {
+  console.warn("⚠️ Uploads folder creation skipped (read-only filesystem in serverless environments):", err.message);
+}
 app.use('/uploads', express.static(uploadDir));
 
 // ─── MongoDB Connection ─────────────────────────────────────────────────────
