@@ -57,6 +57,18 @@ app.use('/uploads', express.static(uploadDir));
 // ─── MongoDB Connection ─────────────────────────────────────────────────────
 connectDB();
 
+// ─── DB Connection Check Middleware ─────────────────────────────────────────
+app.use('/api', (req, res, next) => {
+  const mongoose = require('mongoose');
+  if (mongoose.connection.dbError) {
+    return res.status(503).json({
+      success: false,
+      message: `Database connection error: ${mongoose.connection.dbErrorMessage || 'Could not connect to MongoDB'}. Please verify that MONGODB_URI is correctly configured in your Vercel project environment variables, and ensure your database network whitelist permits external access (0.0.0.0/0).`
+    });
+  }
+  next();
+});
+
 // ─── Routes ─────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
