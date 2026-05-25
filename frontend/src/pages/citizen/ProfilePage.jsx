@@ -7,7 +7,7 @@ import { DISTRICTS } from '../../data/mockData'
 
 const BACKEND = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://127.0.0.1:5000'
-  : `http://${window.location.hostname}:5000`;
+  : '';
 const PHONE_REGEX = /^[6-9]\d{9}$/
 
 const PREFS_CONFIG = [

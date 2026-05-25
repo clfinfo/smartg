@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext'
 
 const BACKEND = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://127.0.0.1:5000'
-  : `http://${window.location.hostname}:5000`;
+  : '';
 
 const TYPE_ICON = {
   new_complaint: { icon: '🔔', bg: 'bg-blue-500/10 text-blue-400' },

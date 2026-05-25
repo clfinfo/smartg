@@ -95,7 +95,7 @@ const LiveMapPage = () => {
       try {
         const BACKEND_API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
           ? 'http://127.0.0.1:5000'
-          : `http://${window.location.hostname}:5000`;
+          : '';
         const res = await axios.get(`${BACKEND_API}/api/complaints`)
         if (res.data?.complaints?.length) {
           const merged = [...res.data.complaints, ...contextComplaints]

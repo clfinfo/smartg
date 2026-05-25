@@ -8,7 +8,7 @@ export const useComplaints = () => useContext(ComplaintsContext)
 
 const BACKEND = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://127.0.0.1:5000'
-  : `http://${window.location.hostname}:5000`;
+  : '';
 
 // Normalize raw complaint from backend to consistent frontend shape
 const normalize = (c) => ({
