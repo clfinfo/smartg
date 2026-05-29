@@ -31,7 +31,25 @@ Push this project to a GitHub repository (including the new root files: `package
 3. **Environment Variables**: Add your backend environment variables in the project settings:
    - `MONGODB_URI`: Your MongoDB database connection string (e.g. `mongodb+srv://...`).
    - `MAPS_API_KEY`: Your Google Maps API Key.
+   - `VITE_BACKEND_URL`: If your backend is deployed separately, set this to its public URL.
    - Any other keys (e.g. `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`, `EMAIL_TO`, etc.).
+
+---
+## SSH Access Setup
+Because pushing to `vishwa4296/smartg` requires GitHub access via SSH, you must add the local public key to your GitHub account.
+
+1. Copy the public key from `C:\Users\DELL\.ssh\id_ed25519.pub`.
+2. Go to GitHub > Settings > SSH and GPG keys > New SSH key.
+3. Paste the key and save it.
+4. Confirm that the remote `vishwa` is configured as `git@github.com:vishwa4296/smartg.git`.
+
+Once the key is added, run:
+```bash
+cd "c:\Users\DELL\Desktop\smart g"
+git push vishwa main
+```
+
+If the push still fails, verify that the GitHub account associated with this SSH key has access to `vishwa4296/smartg`.
 
 ---
 
