@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow, StandaloneSearchBox } from '@react-google-maps/api'
 import { FiFilter, FiSearch, FiZap, FiMapPin, FiLayers, FiWifi, FiRefreshCw, FiX } from 'react-icons/fi'
 import { useComplaints } from '../../context/ComplaintsContext'
+import { getBackendUrl } from '../../config/backend'
 import axios from 'axios'
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
@@ -93,9 +94,7 @@ const LiveMapPage = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const BACKEND_API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-          ? 'http://127.0.0.1:5000'
-          : '';
+        const BACKEND_API = getBackendUrl();
         const res = await axios.get(`${BACKEND_API}/api/complaints`)
         if (res.data?.complaints?.length) {
           const merged = [...res.data.complaints, ...contextComplaints]

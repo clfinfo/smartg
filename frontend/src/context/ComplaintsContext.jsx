@@ -1,14 +1,13 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useAuth } from './AuthContext'
 import { io } from 'socket.io-client'
+import { getBackendUrl } from '../config/backend'
 
 const ComplaintsContext = createContext(null)
 
 export const useComplaints = () => useContext(ComplaintsContext)
 
-const BACKEND = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://127.0.0.1:5000'
-  : '';
+const BACKEND = getBackendUrl()
 
 // Normalize raw complaint from backend to consistent frontend shape
 const normalize = (c) => ({

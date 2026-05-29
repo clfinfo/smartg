@@ -5,10 +5,9 @@ import { io } from 'socket.io-client';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getBackendUrl } from '../../config/backend';
 
-const BACKEND = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://127.0.0.1:5000'
-  : '';
+const BACKEND = getBackendUrl();
 
 const TYPE_ICON = {
   new_complaint:    '📋',

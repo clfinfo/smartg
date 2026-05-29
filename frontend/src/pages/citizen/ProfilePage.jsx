@@ -4,10 +4,9 @@ import { FiEdit3, FiMapPin, FiMail, FiPhone, FiSave, FiX, FiCheck, FiAlertCircle
 import { useAuth } from '../../context/AuthContext'
 import { useComplaints } from '../../context/ComplaintsContext'
 import { DISTRICTS } from '../../data/mockData'
+import { getBackendUrl } from '../../config/backend'
 
-const BACKEND = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://127.0.0.1:5000'
-  : '';
+const BACKEND = getBackendUrl()
 const PHONE_REGEX = /^[6-9]\d{9}$/
 
 const PREFS_CONFIG = [

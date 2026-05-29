@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { getBackendUrl } from '../config/backend'
 
 const AuthContext = createContext(null)
 
@@ -8,9 +9,7 @@ export const useAuth = () => {
   return ctx
 }
 
-const BACKEND = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://127.0.0.1:5000'
-  : '';
+const BACKEND = getBackendUrl()
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)

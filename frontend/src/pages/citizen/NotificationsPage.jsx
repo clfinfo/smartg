@@ -3,10 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FiBell, FiCheckCircle, FiTrash2, FiRefreshCw } from 'react-icons/fi'
 import { io } from 'socket.io-client'
 import { useAuth } from '../../context/AuthContext'
+import { getBackendUrl } from '../../config/backend'
 
-const BACKEND = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://127.0.0.1:5000'
-  : '';
+const BACKEND = getBackendUrl()
 
 const TYPE_ICON = {
   new_complaint: { icon: '🔔', bg: 'bg-blue-500/10 text-blue-400' },

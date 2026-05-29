@@ -7,6 +7,7 @@ import { GoogleMap, useJsApiLoader, Marker, Autocomplete } from '@react-google-m
 import { useComplaints } from '../../context/ComplaintsContext'
 import { useAuth } from '../../context/AuthContext'
 import { CATEGORIES, DISTRICTS } from '../../data/mockData'
+import { getBackendUrl } from '../../config/backend'
 
 const LIBRARIES = ['places'];
 
@@ -17,9 +18,7 @@ const SEVERITY_COLORS = {
   High: 'border-orange-500 bg-orange-500/10 text-orange-400',
   Critical: 'border-red-500 bg-red-500/10 text-red-400'
 }
-const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://127.0.0.1:5000'
-  : '';
+const BACKEND_URL = getBackendUrl();
 
 const ReportIssuePage = () => {
   const { addComplaint } = useComplaints()

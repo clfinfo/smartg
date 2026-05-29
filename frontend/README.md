@@ -24,3 +24,14 @@ Open a new, separate terminal in the project root and run:
 cd frontend
 npm run dev
 ```
+
+### 3. Production backend configuration
+If you deploy the frontend separately from the backend (for example, using Vercel), set the deployed backend base URL in `frontend/.env` or in your deployment environment variables:
+
+```env
+VITE_BACKEND_URL=https://your-backend.example.com
+```
+
+A sample file is provided at `frontend/.env.example`.
+
+In local development, the frontend will continue to proxy `/api` requests to `http://127.0.0.1:5000`.

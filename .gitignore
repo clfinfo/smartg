@@ -12,6 +12,8 @@ backend/dist/
 # Secrets / env files
 *.env
 *.env.*
+!.env.example
+!frontend/.env.example
 
 # Data / uploads
 data/uploads/
