@@ -46,7 +46,9 @@ app.use((req, res, next) => {
   next();
 });
 
-const uploadDir = path.join(__dirname, process.env.UPLOAD_DIR || 'uploads');
+const uploadDir = process.env.VERCEL
+  ? path.join('/tmp', process.env.UPLOAD_DIR || 'uploads')
+  : path.join(__dirname, process.env.UPLOAD_DIR || 'uploads');
 try {
   if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 } catch (err) {
