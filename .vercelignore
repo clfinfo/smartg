@@ -1,9 +1,7 @@
 # Ignore backend servers and local files from Vercel deployments
-/backend
 /backend-node
 /backend-python
 /data
-/AI
 /scratch
 /smart_g_vercel_ready.zip
 .git
