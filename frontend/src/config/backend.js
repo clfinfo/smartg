@@ -6,7 +6,7 @@ const envUrl = import.meta.env.VITE_BACKEND_URL
 
 export const BACKEND_URL = envUrl || ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? DEFAULT_BACKEND_URL
-  : '/api')
+  : '')
 
 export const getBackendUrl = () => {
   if (!BACKEND_URL) {
