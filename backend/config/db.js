@@ -23,25 +23,32 @@ async function seedDatabase() {
   } catch (err) { console.error('❌ Seeding Error:', err); }
 }
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 5000,
-    });
-    mongoose.connection.dbError = false;
-    console.log('MongoDB Connected Successfully');
-    await seedDatabase();
-  } catch (error) {
-    mongoose.connection.dbError = true;
-    mongoose.connection.dbErrorMessage = error.message;
-    console.log('==============================================');
-    console.log('Database Error: Could not connect to MongoDB.', error.message);
-    console.log('Make sure MongoDB service is running locally.');
-    console.log('Start it from: Services > MongoDB > Start');
-    console.log('Or install from: mongodb.com/try/download/community');
-    console.log('==============================================');
-    // Do NOT exit - keep server running so frontend can still load
-  }
+let connectionPromise = null;
+
+const connectDB = () => {
+  if (connectionPromise) return connectionPromise;
+
+  connectionPromise = (async () => {
+    try {
+      await mongoose.connect(MONGO_URI, {
+        serverSelectionTimeoutMS: 5000,
+      });
+      mongoose.connection.dbError = false;
+      console.log('MongoDB Connected Successfully');
+      await seedDatabase();
+    } catch (error) {
+      mongoose.connection.dbError = true;
+      mongoose.connection.dbErrorMessage = error.message;
+      console.log('==============================================');
+      console.log('Database Error: Could not connect to MongoDB.', error.message);
+      console.log('Make sure MongoDB service is running locally.');
+      console.log('Start it from: Services > MongoDB > Start');
+      console.log('Or install from: mongodb.com/try/download/community');
+      console.log('==============================================');
+    }
+  })();
+
+  return connectionPromise;
 };
 
 module.exports = connectDB;

@@ -57,11 +57,12 @@ try {
 app.use('/uploads', express.static(uploadDir));
 
 // ─── MongoDB Connection ─────────────────────────────────────────────────────
-connectDB();
+const dbPromise = connectDB();
 
 // ─── DB Connection Check Middleware ─────────────────────────────────────────
-app.use('/api', (req, res, next) => {
+app.use('/api', async (req, res, next) => {
   const mongoose = require('mongoose');
+  await dbPromise; // Ensure database connection attempt is completed before processing queries
   if (mongoose.connection.dbError) {
     return res.status(503).json({
       success: false,
