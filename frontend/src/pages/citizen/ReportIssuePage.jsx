@@ -48,6 +48,8 @@ const ReportIssuePage = () => {
   const update = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
   const [photoFile, setPhotoFile] = useState(null)
+  const [districtAutoDetected, setDistrictAutoDetected] = useState(false)
+  const [locationAddress, setLocationAddress] = useState('')  // human-readable address for backend
 
   // ── HUD Bounding Box Rendering ──────────────────────────────────────────
   // Runs in 0.1ms using standard browser HTML5 Canvas. Avoids heavy external
@@ -309,18 +311,94 @@ const ReportIssuePage = () => {
   const [mapCenter, setMapCenter] = useState({ lat: 12.9716, lng: 77.5946 })
   const [markerPos, setMarkerPos] = useState(null)
 
-  const reverseGeocode = (lat, lng) => {
-    if (!window.google) return;
-    const geocoder = new window.google.maps.Geocoder();
-    geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-      if (status === 'OK' && results[0]) {
-        update('location', results[0].formatted_address);
-      } else {
-        update('location', `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+  // Core district name → DISTRICTS list matcher (shared by both geocoders)
+  const matchDistrict = (rawName) => {
+    if (!rawName) return ''
+    const norm = s => s.toLowerCase().replace(/[-\s]+/g, ' ').trim()
+    const raw = norm(rawName)
+
+    const exact = DISTRICTS.find(d => norm(d) === raw)
+    if (exact) return exact
+
+    const partial = DISTRICTS.find(d => {
+      const dn = norm(d)
+      return dn.includes(raw) || raw.includes(dn)
+    })
+    if (partial) return partial
+
+    const aliases = {
+      'bangalore urban': 'Bengaluru Urban', 'bangalore rural': 'Bengaluru Rural',
+      'bangalore': 'Bengaluru Urban',       'bengaluru': 'Bengaluru Urban',
+      'mysore': 'Mysuru',                   'mangalore': 'Mangaluru',
+      'dakshina kannada': 'Dakshina Kannada','south canara': 'Dakshina Kannada',
+      'shimoga': 'Shivamogga',              'gulbarga': 'Kalaburagi',
+      'bijapur': 'Vijayapura',              'bellary': 'Ballari',
+      'tumkur': 'Tumakuru',                 'hubli': 'Hubballi-Dharwad',
+      'hubli dharwad': 'Hubballi-Dharwad',  'north canara': 'Uttara Kannada',
+      'karwar': 'Uttara Kannada',           'coorg': 'Kodagu',
+      'mercara': 'Kodagu',                  'chikmagalur': 'Chikkamagaluru',
+    }
+    const norm2 = s => s.toLowerCase().replace(/[-\s]+/g, ' ').trim()
+    for (const [alias, canonical] of Object.entries(aliases)) {
+      if (raw.includes(alias) || alias.includes(raw)) {
+        const matched = DISTRICTS.find(d => norm2(d) === norm2(canonical))
+        if (matched) return matched
       }
-      update('lat', lat);
-      update('lng', lng);
-    });
+    }
+    return ''
+  }
+
+  // Extract district from Google Maps address_components array
+  const extractDistrict = (components) => {
+    const levels = ['administrative_area_level_2', 'administrative_area_level_3']
+    for (const level of levels) {
+      const comp = components.find(c => c.types.includes(level))
+      if (comp) {
+        const d = matchDistrict(comp.long_name)
+        if (d) return d
+      }
+    }
+    return ''
+  }
+
+  // Nominatim (OpenStreetMap) fallback — free, no API key needed
+  const nominatimGeocode = async (lat, lng) => {
+    // Always show coordinates in the GPS field
+    update('location', `${lat.toFixed(5)},  ${lng.toFixed(5)}`)
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`,
+        { headers: { 'User-Agent': 'EcoSmartCityApp/1.0', 'Accept-Language': 'en' } }
+      )
+      const data = await res.json()
+      // Store readable address separately (used as location_str for the backend)
+      if (data?.display_name) setLocationAddress(data.display_name)
+      const addr = data?.address || {}
+      const raw = addr.county || addr.state_district || addr.district || ''
+      const detected = matchDistrict(raw)
+      if (detected) { update('district', detected); setDistrictAutoDetected(true) }
+    } catch { /* coordinates already set above */ }
+  }
+
+  const reverseGeocode = (lat, lng) => {
+    update('lat', lat)
+    update('lng', lng)
+    if (window.google?.maps) {
+      const geocoder = new window.google.maps.Geocoder()
+      geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+          // Show coordinates in field; store address for backend
+          update('location', `${lat.toFixed(5)},  ${lng.toFixed(5)}`)
+          setLocationAddress(results[0].formatted_address)
+          const detected = extractDistrict(results[0].address_components)
+          if (detected) { update('district', detected); setDistrictAutoDetected(true) }
+        } else {
+          nominatimGeocode(lat, lng)
+        }
+      })
+    } else {
+      nominatimGeocode(lat, lng)
+    }
   }
 
   const onMapClick = (e) => {
@@ -398,7 +476,7 @@ const ReportIssuePage = () => {
       formData.append('description', form.description);
       formData.append('severity', form.severity);
       formData.append('district', form.district || 'Bengaluru Urban');
-      formData.append('location_str', form.location);
+      formData.append('location_str', locationAddress || form.location);
 
       // Extract coordinates from location string
       if (form.lat && form.lng) {
@@ -446,6 +524,8 @@ const ReportIssuePage = () => {
     setCapturedImg(null)
     setAiResult(null)
     setCameraError(null)
+    setDistrictAutoDetected(false)
+    setLocationAddress('')
     setForm({ category: '', description: '', severity: 'Medium', district: '', location: '' })
   }
 
@@ -696,10 +776,22 @@ const ReportIssuePage = () => {
               </div>
             </div>
 
-            {/* District dropdown */}
+            {/* District — auto-filled from GPS or manual */}
             <div>
-              <label className="text-gray-400 text-sm mb-2 block">District *</label>
-              <select value={form.district} onChange={e => update('district', e.target.value)} required className="input-field appearance-none">
+              <label className="text-gray-400 text-sm mb-2 flex items-center gap-2">
+                District *
+                {districtAutoDetected && form.district && (
+                  <span className="text-xs text-primary-400 bg-primary-500/10 border border-primary-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <FiMapPin size={10} /> Auto-detected
+                  </span>
+                )}
+              </label>
+              <select
+                value={form.district}
+                onChange={e => { update('district', e.target.value); setDistrictAutoDetected(false) }}
+                required
+                className="input-field appearance-none"
+              >
                 <option value="">Select District</option>
                 {DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
@@ -710,11 +802,17 @@ const ReportIssuePage = () => {
               <label className="text-gray-400 text-sm mb-2 block">GPS Geolocation Coordinates *</label>
               <div className="flex gap-2">
                 <input type="text" required value={form.location} onChange={e => update('location', e.target.value)}
-                  placeholder="Click 📍 to detect coordinates automatically" className="input-field text-xs font-mono" />
+                  placeholder="Click 📍 to auto-detect your coordinates" className="input-field text-xs font-mono" />
                 <button type="button" onClick={getLocation} title="Auto-detect coordinates" className="btn-secondary px-4 flex-shrink-0">
                   <FiMapPin size={18} />
                 </button>
               </div>
+              {locationAddress && (
+                <p className="text-gray-500 text-xs mt-1.5 flex items-center gap-1 truncate">
+                  <FiMapPin size={10} className="text-primary-400 flex-shrink-0" />
+                  <span className="truncate">{locationAddress}</span>
+                </p>
+              )}
             </div>
 
             {/* Map Preview */}

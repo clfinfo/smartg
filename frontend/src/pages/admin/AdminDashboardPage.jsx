@@ -3,7 +3,6 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { FiArrowRight, FiUsers, FiCheckCircle, FiClock, FiAlertCircle } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import { useComplaints } from '../../context/ComplaintsContext'
-import { WORKERS } from '../../data/mockData'
 
 const CATEGORY_COLORS = {
   Garbage: '#22c55e', Garbage_Overflow: '#22c55e', 'Garbage Overflow': '#22c55e',
@@ -57,7 +56,6 @@ const AdminDashboardPage = () => {
     { label: 'Resolved',         value: resolvedCount,   icon: '✅', colorBg: 'from-green-600/20 to-green-900/20', border: 'border-green-500/20',  text: 'text-green-400'  },
     { label: 'In Progress',      value: inProgressCount, icon: '🔄', colorBg: 'from-cyan-600/20 to-cyan-900/20',   border: 'border-cyan-500/20',   text: 'text-cyan-400'   },
     { label: 'Pending',          value: pendingCount,    icon: '⏳', colorBg: 'from-yellow-600/20 to-yellow-900/20',border: 'border-yellow-500/20', text: 'text-yellow-400' },
-    { label: 'Active Workers',   value: WORKERS.filter(w => w.status === 'active').length, icon: '👷', colorBg: 'from-orange-600/20 to-orange-900/20', border: 'border-orange-500/20', text: 'text-orange-400' },
     { label: 'Districts Covered',value: '30 / 31',       icon: '🏙️', colorBg: 'from-purple-600/20 to-purple-900/20',border: 'border-purple-500/20', text: 'text-purple-400' },
   ]
 
@@ -77,7 +75,7 @@ const AdminDashboardPage = () => {
       </div>
 
       {/* Stat Cards — always show real values */}
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
         {STAT_CARDS.map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
             className={`bg-gradient-to-br ${s.colorBg} border ${s.border} rounded-2xl p-4 text-center hover:-translate-y-1 transition-all`}>
@@ -209,31 +207,6 @@ const AdminDashboardPage = () => {
                   </motion.div>
                 )
               })}
-            </div>
-          </div>
-
-          {/* ── Workers Overview ──────────────────────────────────────── */}
-          <div className="glass p-6 rounded-2xl">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-white font-bold text-lg">👷 Field Teams Overview</h3>
-              <button onClick={() => navigate('/admin/workers')} className="text-primary-400 hover:text-primary-300 text-sm flex items-center gap-1">
-                Assign Workers <FiArrowRight size={13} />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {WORKERS.map((w, i) => (
-                <motion.div key={w.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-                  className="flex items-center gap-3 p-4 rounded-xl bg-white/3 border border-white/5 hover:bg-white/8 transition-all">
-                  <img src={w.avatar} alt={w.name} className="w-10 h-10 rounded-xl bg-primary-900 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm font-semibold truncate">{w.name}</p>
-                    <p className="text-gray-500 text-xs">{w.team}</p>
-                  </div>
-                  <span className={`text-xs px-2 py-1 rounded-full border flex-shrink-0 ${w.status === 'active' ? 'bg-green-500/10 text-green-400 border-green-500/20' : w.status === 'busy' ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20'}`}>
-                    {w.status}
-                  </span>
-                </motion.div>
-              ))}
             </div>
           </div>
         </>

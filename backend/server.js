@@ -1,3 +1,4 @@
+// Triggering nodemon restart for MongoDB connection retry
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
