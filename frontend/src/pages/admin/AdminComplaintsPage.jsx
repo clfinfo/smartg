@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'react-hot-toast'
-import { FiSearch, FiTrash2, FiEdit, FiUserCheck, FiX, FiCheck, FiSave, FiEye, FiFilter } from 'react-icons/fi'
+import { FiSearch, FiTrash2, FiEdit, FiX, FiCheck, FiSave, FiEye, FiFilter } from 'react-icons/fi'
 import { useComplaints } from '../../context/ComplaintsContext'
-import { WORKERS } from '../../data/mockData'
 import { sendStatusUpdateEmail } from '../../services/emailService'
 
 const STATUS_OPTS = [
@@ -65,7 +64,6 @@ const AdminComplaintsPage = () => {
   // Edit modal state
   const [editModal, setEditModal] = useState(null) // holds the complaint being edited
   const [editStatusVal, setEditStatusVal] = useState('')
-  const [editWorkerVal, setEditWorkerVal] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
 
@@ -110,7 +108,6 @@ const AdminComplaintsPage = () => {
     if (s === 'resolved' || s === 'completed') setEditStatusVal('Completed')
     else if (s === 'in-progress' || s === 'in progress') setEditStatusVal('In Progress')
     else setEditStatusVal('Pending')
-    setEditWorkerVal(c.worker || 'Unassigned')
     setSaveMsg('')
   }
 
@@ -119,7 +116,7 @@ const AdminComplaintsPage = () => {
     setSaving(true)
     setSaveMsg('')
     try {
-      await updateStatus(editModal._id, editStatusVal, editWorkerVal)
+      await updateStatus(editModal._id, editStatusVal)
       setSaveMsg('✅ Updated successfully!')
 
       // Send status update email to the complaint owner
@@ -133,7 +130,6 @@ const AdminComplaintsPage = () => {
           complaintId: editModal.id || editModal.custom_id || editModal._id?.slice(-8),
           newStatus:   editStatusVal,
           issueType:   editModal.type,
-          worker:      editWorkerVal,
           dateTime:    new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
         })
 
@@ -238,7 +234,7 @@ const AdminComplaintsPage = () => {
               <table className="w-full min-w-[1000px]">
                 <thead>
                   <tr className="table-head">
-                    {['ID', 'Citizen', 'Reported Category', 'AI Classification', 'Photo Attachment', 'Location', 'Severity', 'Status', 'Worker', 'Actions'].map(h => (
+                    {['ID', 'Citizen', 'Reported Category', 'AI Classification', 'Photo Attachment', 'Location', 'Severity', 'Status', 'Actions'].map(h => (
                       <th key={h} className="table-cell text-left text-xs font-bold text-gray-400 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
@@ -293,10 +289,21 @@ const AdminComplaintsPage = () => {
                           {c.photo ? (
                             <div className="relative group w-14 h-10 rounded-lg overflow-hidden border border-white/10 cursor-pointer"
                               onClick={() => setLightboxImg(c.photo)}>
-                              <img src={c.photo} alt={c.type} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                              <img
+                                src={c.photo}
+                                alt={c.type}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                                onError={e => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = 'none';
+                                  const fallback = e.target.parentNode.querySelector('.img-fallback');
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                              />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity pointer-events-none">
                                 <FiEye size={12} className="text-white" />
                               </div>
+                              <div className="img-fallback w-full h-full bg-white/5 items-center justify-center text-[10px] text-gray-600 rounded-lg absolute inset-0" style={{display:'none'}}>No Photo</div>
                             </div>
                           ) : (
                             <div className="w-14 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[10px] text-gray-600">No Photo</div>
@@ -323,13 +330,6 @@ const AdminComplaintsPage = () => {
                             className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${getStatusStyle(c.status)}`}>
                             {getStatusLabel(c.status)}
                           </motion.span>
-                        </td>
-
-                        {/* Worker */}
-                        <td className="table-cell">
-                          <span className={`text-xs ${c.worker && c.worker !== 'Unassigned' ? 'text-primary-400 font-medium' : 'text-gray-600'}`}>
-                            {c.worker || 'Unassigned'}
-                          </span>
                         </td>
 
                         {/* Actions */}
@@ -391,7 +391,6 @@ const AdminComplaintsPage = () => {
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${getStatusStyle(editModal.status)}`}>
                       {getStatusLabel(editModal.status)}
                     </span>
-                    <span className="text-gray-600 text-xs ml-auto">Worker: {editModal.worker || 'Unassigned'}</span>
                   </div>
                   {editModal.ai_detected_category && (
                     <div className="text-[11px] text-emerald-400 border-t border-white/5 pt-2 flex items-center gap-1">
@@ -401,7 +400,7 @@ const AdminComplaintsPage = () => {
                 </div>
 
                 {/* Change Status */}
-                <div className="mb-4">
+                <div className="mb-5">
                   <label className="block text-gray-400 text-sm font-medium mb-2">Update Status</label>
                   <div className="grid grid-cols-3 gap-2">
                     {STATUS_OPTS.map(opt => (
@@ -410,34 +409,6 @@ const AdminComplaintsPage = () => {
                           ? opt.cls + ' ring-2 ring-offset-1 ring-offset-transparent ring-current'
                           : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'}`}>
                         {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Assign Worker */}
-                <div className="mb-5">
-                  <label className="block text-gray-400 text-sm font-medium mb-2">Assign Worker</label>
-                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                    {/* Unassigned option */}
-                    <button onClick={() => setEditWorkerVal('Unassigned')}
-                      className={`w-full flex items-center gap-3 p-2.5 rounded-xl border transition-all text-left ${editWorkerVal === 'Unassigned' ? 'border-primary-500/50 bg-primary-900/20' : 'border-white/10 bg-white/3 hover:bg-white/8'}`}>
-                      <div className="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center text-gray-400 text-xs flex-shrink-0">—</div>
-                      <p className="text-gray-400 text-sm">Unassigned</p>
-                      {editWorkerVal === 'Unassigned' && <FiCheck className="ml-auto text-primary-400" size={14} />}
-                    </button>
-                    {WORKERS.map(w => (
-                      <button key={w.id} onClick={() => setEditWorkerVal(`${w.name} (${w.team})`)}
-                        className={`w-full flex items-center gap-3 p-2.5 rounded-xl border transition-all text-left ${editWorkerVal === `${w.name} (${w.team})` ? 'border-primary-500/50 bg-primary-900/20' : 'border-white/10 bg-white/3 hover:bg-white/8'}`}>
-                        <img src={w.avatar} alt={w.name} className="w-8 h-8 rounded-lg flex-shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white text-xs font-medium">{w.name}</p>
-                          <p className="text-gray-500 text-xs">{w.team} · {w.role}</p>
-                        </div>
-                        <span className={`text-xs px-2 py-0.5 rounded-md ${w.status === 'active' ? 'bg-green-500/20 text-green-400' : w.status === 'busy' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-500/20 text-gray-400'}`}>
-                          {w.status}
-                        </span>
-                        {editWorkerVal === `${w.name} (${w.team})` && <FiCheck className="text-primary-400" size={14} />}
                       </button>
                     ))}
                   </div>
@@ -505,7 +476,12 @@ const AdminComplaintsPage = () => {
               className="fixed inset-0 z-[101] flex items-center justify-center p-4" onClick={() => setLightboxImg(null)}>
               <div className="relative max-w-4xl max-h-[85vh] bg-black/50 border border-white/10 rounded-2xl overflow-hidden p-2"
                 onClick={e => e.stopPropagation()}>
-                <img src={lightboxImg} alt="Complaint Attachment" className="max-w-full max-h-[80vh] object-contain rounded-xl" />
+                <img
+                  src={lightboxImg}
+                  alt="Complaint Attachment"
+                  className="max-w-full max-h-[80vh] object-contain rounded-xl"
+                  onError={e => { e.target.onerror = null; e.target.style.display = 'none'; e.target.parentNode.innerHTML += '<p style="color:#9ca3af;padding:2rem;text-align:center">Image could not be loaded.<br/>The file may have been removed from the server.</p>' }}
+                />
                 <button onClick={() => setLightboxImg(null)} className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-all font-bold">
                   <FiX size={16} />
                 </button>

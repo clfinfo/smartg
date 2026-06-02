@@ -59,7 +59,9 @@ export const ComplaintsProvider = ({ children }) => {
     })
     socket.on('new_complaint', (c) => setComplaints(prev => [normalize(c), ...prev]))
     socket.on('status_update', (updated) => {
-      setComplaints(prev => prev.map(c => (c._id === updated._id ? normalize(updated) : c)))
+      setComplaints(prev => prev.map(c =>
+        (String(c._id) === String(updated._id) ? normalize(updated) : c)
+      ))
     })
     return () => socket.disconnect()
   }, [user])
@@ -166,7 +168,8 @@ export const ComplaintsProvider = ({ children }) => {
     })
     const data = await res.json()
     if (!data.success) throw new Error(data.message)
-    setComplaints(prev => prev.map(c => (c._id === id ? normalize(data.data) : c)))
+    const updated = normalize(data.data)
+    setComplaints(prev => prev.map(c => (String(c._id) === String(id) ? updated : c)))
   }
 
   const deleteComplaint = async (id) => {

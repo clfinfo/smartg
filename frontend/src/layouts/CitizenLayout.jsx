@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiHome, FiCamera, FiMap, FiList, FiAward,
   FiBell, FiUser, FiLogOut, FiChevronLeft,
-  FiChevronRight, FiSun, FiMoon, FiGlobe, FiPlus
+  FiChevronRight, FiSun, FiMoon, FiPlus
 } from 'react-icons/fi'
 import { FaLeaf } from 'react-icons/fa'
 import { useAuth } from '../context/AuthContext'
@@ -24,7 +24,7 @@ const NAV_ITEMS = [
 
 const CitizenLayout = () => {
   const { user, logout } = useAuth()
-  const { isDark, toggleTheme, language, toggleLanguage } = useTheme()
+  const { isDark, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
   const [collapsed, setCollapsed] = useState(false)
@@ -51,13 +51,13 @@ const CitizenLayout = () => {
   const SidebarContent = () => (
     <>
       {/* Logo */}
-      <div className={`flex items-center gap-3 px-4 py-5 border-b border-white/10 ${collapsed ? 'justify-center' : ''}`}>
+      <div className={`flex items-center gap-3 px-4 py-5 border-b border-slate-200 dark:border-white/10 ${collapsed ? 'justify-center' : ''}`}>
         <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-600 to-emerald-400 flex items-center justify-center shadow-glow flex-shrink-0">
           <FaLeaf className="text-white text-sm" />
         </div>
         {!collapsed && (
           <div>
-            <h2 className="text-white font-bold text-sm leading-tight">EcoSmart City</h2>
+            <h2 className="text-slate-800 dark:text-white font-bold text-sm leading-tight">EcoSmart City</h2>
             <p className="text-gray-500 text-xs">Karnataka v2.0</p>
           </div>
         )}
@@ -65,7 +65,7 @@ const CitizenLayout = () => {
 
       {/* Nav items */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {!collapsed && <p className="text-gray-600 text-xs font-semibold uppercase tracking-wider px-2 mb-3">Citizen Portal</p>}
+        {!collapsed && <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider px-2 mb-3">Citizen Portal</p>}
         {NAV_ITEMS.map(({ path, label, icon: Icon, exact }) => {
           const active = isActive(path, exact)
           return (
@@ -89,26 +89,29 @@ const CitizenLayout = () => {
       </nav>
 
       {/* User & utilities */}
-      <div className="px-3 pb-4 space-y-2 border-t border-white/10 pt-3">
-        {/* Theme + Lang */}
-        {!collapsed && (
+      <div className="px-3 pb-4 space-y-2 border-t border-slate-200 dark:border-white/10 pt-3">
+        {/* Theme */}
+        {!collapsed ? (
           <div className="flex gap-2">
-            <button onClick={toggleTheme} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-xs transition-all border border-white/10">
-              {isDark ? <FiSun size={14} /> : <FiMoon size={14} />} {isDark ? 'Light' : 'Dark'}
-            </button>
-            <button onClick={toggleLanguage} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-xs transition-all border border-white/10">
-              <FiGlobe size={14} /> {language === 'en' ? 'ಕನ್ನಡ' : 'Eng'}
+            <button onClick={toggleTheme} className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white text-xs transition-all border border-slate-200 dark:border-white/10">
+              {isDark ? <FiSun size={14} /> : <FiMoon size={14} />}
+              {isDark ? 'Switch to Light' : 'Switch to Dark'}
             </button>
           </div>
+        ) : (
+          <button onClick={toggleTheme} title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            className="nav-item w-full justify-center px-2">
+            {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+          </button>
         )}
 
         {/* User card */}
         {!collapsed ? (
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10">
             <img src={user?.avatar} alt="avatar" className="w-9 h-9 rounded-lg object-cover bg-primary-800" />
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-semibold truncate">{user?.name}</p>
-              <p className="text-primary-400 text-xs truncate">⭐ {user?.rank}</p>
+              <p className="text-slate-850 dark:text-white text-sm font-semibold truncate">{user?.name}</p>
+              <p className="text-primary-600 dark:text-primary-400 text-xs truncate">⭐ {user?.rank}</p>
             </div>
             <button onClick={handleLogout} className="text-gray-500 hover:text-red-400 transition-colors p-1">
               <FiLogOut size={16} />
@@ -124,18 +127,18 @@ const CitizenLayout = () => {
   )
 
   return (
-    <div className="flex h-screen bg-dark-900 overflow-hidden">
+    <div className="flex h-screen bg-slate-50 dark:bg-dark-900 overflow-hidden">
       {/* Desktop Sidebar */}
       <motion.aside
         animate={{ width: collapsed ? 72 : 240 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className="hidden md:flex flex-col bg-dark-800 border-r border-white/5 relative overflow-hidden sidebar-transition"
+        className="hidden md:flex flex-col bg-white dark:bg-dark-800 border-r border-slate-200 dark:border-white/5 relative overflow-hidden sidebar-transition"
       >
         <SidebarContent />
         {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-dark-700 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-dark-600 transition-all z-10"
+          className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-slate-100 dark:bg-dark-700 border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-600 dark:text-gray-400 hover:text-slate-800 hover:bg-slate-200 dark:hover:text-white dark:hover:bg-dark-600 transition-all z-10"
         >
           {collapsed ? <FiChevronRight size={12} /> : <FiChevronLeft size={12} />}
         </button>
@@ -146,7 +149,7 @@ const CitizenLayout = () => {
         {mobileOpen && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMobileOpen(false)} className="fixed inset-0 bg-black/60 z-40 md:hidden" />
-            <motion.aside initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }} transition={{ type: 'spring', damping: 25 }} className="fixed left-0 top-0 bottom-0 w-64 flex flex-col bg-dark-800 border-r border-white/5 z-50 md:hidden">
+            <motion.aside initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }} transition={{ type: 'spring', damping: 25 }} className="fixed left-0 top-0 bottom-0 w-64 flex flex-col bg-white dark:bg-dark-800 border-r border-slate-200 dark:border-white/5 z-50 md:hidden">
               <SidebarContent />
             </motion.aside>
           </>
@@ -156,25 +159,20 @@ const CitizenLayout = () => {
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top header */}
-        <header className="flex items-center gap-4 px-6 py-4 bg-dark-800/50 backdrop-blur border-b border-white/5 flex-shrink-0">
-          <button onClick={() => setMobileOpen(true)} className="md:hidden text-gray-400 hover:text-white">
+        <header className="flex items-center gap-4 px-6 py-4 bg-white/70 dark:bg-dark-800/50 backdrop-blur border-b border-slate-200 dark:border-white/5 flex-shrink-0">
+          <button onClick={() => setMobileOpen(true)} className="md:hidden text-slate-650 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white">
             <FiList size={20} />
           </button>
           <div className="flex-1">
-            <h1 className="text-white font-bold text-lg leading-tight">
+            <h1 className="text-slate-805 dark:text-white font-bold text-lg leading-tight">
               {NAV_ITEMS.find(n => isActive(n.path, n.exact))?.label || 'Dashboard'}
             </h1>
             <p className="text-gray-500 text-xs">
-              {language === 'en' ? 'EcoSmart City — Karnataka AI Reporting System' : 'ಎಕೋಸ್ಮಾರ್ಟ್ ಸಿಟಿ — ಕರ್ನಾಟಕ AI ವರದಿ ವ್ಯವಸ್ಥೆ'}
+              EcoSmart City — Karnataka AI Reporting System
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 bg-primary-900/40 border border-primary-500/30 px-3 py-1.5 rounded-xl">
-              <span className="text-yellow-400 text-sm">🪙</span>
-              <span className="text-primary-400 font-bold text-sm">{user?.points?.toLocaleString()}</span>
-              <span className="text-gray-500 text-xs">pts</span>
-            </div>
-            <button onClick={() => handleNav('/dashboard/notifications')} className="relative p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all border border-white/10">
+            <button onClick={() => handleNav('/dashboard/notifications')} className="relative p-2 rounded-xl bg-white dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white transition-all border border-slate-200 dark:border-white/10">
               <FiBell size={18} />
               {unread > 0 && <span className="notification-dot">{unread}</span>}
             </button>

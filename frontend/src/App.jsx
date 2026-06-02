@@ -24,7 +24,6 @@ import ProfilePage from './pages/citizen/ProfilePage'
 import AdminLayout from './layouts/AdminLayout'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminComplaintsPage from './pages/admin/AdminComplaintsPage'
-import WorkerAssignmentPage from './pages/admin/WorkerAssignmentPage'
 import AdminNotificationsPage from './pages/admin/AdminNotificationsPage'
 import AdminSettingsPage from './pages/admin/AdminSettingsPage'
 
@@ -67,7 +66,6 @@ const AppRoutes = () => (
     <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>}>
       <Route index element={<AdminDashboardPage />} />
       <Route path="complaints" element={<AdminComplaintsPage />} />
-      <Route path="workers" element={<WorkerAssignmentPage />} />
       <Route path="notifications" element={<AdminNotificationsPage />} />
       <Route path="settings" element={<AdminSettingsPage />} />
     </Route>

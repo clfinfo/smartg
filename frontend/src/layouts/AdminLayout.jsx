@@ -13,7 +13,6 @@ import NotificationBell from '../components/ui/NotificationBell'
 const NAV_ITEMS = [
   { path: '/admin',              label: 'Dashboard',        icon: FiGrid,    exact: true },
   { path: '/admin/complaints',   label: 'Complaints',       icon: FiList },
-  { path: '/admin/workers',      label: 'Worker Assignment',icon: FiUsers },
   { path: '/admin/notifications',label: 'Notifications',    icon: FiBell },
   { path: '/admin/settings',     label: 'Settings',         icon: FiSettings },
 ]
@@ -107,7 +106,6 @@ const AdminLayout = () => {
               <span className="text-primary-400 font-medium">System Online</span>
             </div>
             <NotificationBell />
-            <button onClick={() => navigate('/dashboard')} className="btn-secondary py-2 px-4 text-sm">↩ User View</button>
           </div>
         </header>
         <main className="flex-1 overflow-y-auto p-6 bg-grid">
