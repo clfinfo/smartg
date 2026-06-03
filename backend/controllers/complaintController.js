@@ -3,6 +3,7 @@ const User = require('../models/User');
 const { createAndEmit } = require('./notificationController');
 const { sendStatusUpdateEmail, sendSMSAlert, sendComplaintSubmittedEmail } = require('../services/emailService');
 const { detectImage } = require('../../AI/OpenCV/opencv_detector');
+const { uploadImage } = require('../services/cloudinaryService');
 
 // API controller to analyze and recognize uploaded images in real-time
 exports.detectImage = async (req, res) => {
@@ -20,16 +21,22 @@ exports.detectImage = async (req, res) => {
       return res.status(500).json({ success: false, message: 'OpenCV detection failed internally' });
     }
 
+    let previewUrl = `/uploads/${req.file.filename}`;
+    try {
+      const cloudUrl = await uploadImage(req.file.path);
+      if (cloudUrl) previewUrl = cloudUrl;
+    } catch (_) { /* fallback to local path */ }
+
     res.json({
       success: true,
       detected_category: detection.detected_category,
       confidence: detection.confidence,
       timestamp: detection.timestamp || new Date(),
       metrics: detection.metrics,
-      image_url: `/uploads/${req.file.filename}`
+      image_url: previewUrl
     });
   } catch (err) {
-    console.error("❌ AI Detection Controller Error:", err);
+    console.error("AI Detection Controller Error:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
@@ -64,7 +71,19 @@ exports.createComplaint = async (req, res) => {
           }
         }
       } catch (cvErr) {
-        console.warn("⚠️ OpenCV submit auto-detect failed, using fallback type:", cvErr.message);
+        console.warn("OpenCV submit auto-detect failed, using fallback type:", cvErr.message);
+      }
+    }
+
+    // Upload image to Cloudinary for persistent storage (Vercel ephemeral filesystem fix)
+    let imagePath = null;
+    if (req.file) {
+      try {
+        const cloudUrl = await uploadImage(req.file.path);
+        imagePath = cloudUrl || `/uploads/${req.file.filename}`;
+      } catch (uploadErr) {
+        console.warn('Cloudinary upload failed, using local path:', uploadErr.message);
+        imagePath = `/uploads/${req.file.filename}`;
       }
     }
 
@@ -78,8 +97,8 @@ exports.createComplaint = async (req, res) => {
       location_str,
       location_lat,
       location_lng,
-      image_path: req.file ? `/uploads/${req.file.filename}` : null,
-      
+      image_path: imagePath,
+
       // Persist AI metrics in MongoDB
       ai_detected_category: aiDetected,
       ai_confidence: aiConfidence,
