@@ -56,7 +56,11 @@ export const CATEGORIES = [
 ]
 
 export const DISTRICTS = [
-  'Bengaluru Urban', 'Bengaluru Rural', 'Mysuru', 'Hubballi-Dharwad',
-  'Mangaluru', 'Belagavi', 'Shivamogga', 'Tumakuru', 'Kalaburagi',
-  'Davanagere', 'Ballari', 'Vijayapura', 'Bidar', 'Raichur', 'Koppal',
+  'Bengaluru Urban', 'Bengaluru Rural', 'Ramanagara', 'Kolar', 'Chikkaballapura',
+  'Tumakuru', 'Mysuru', 'Chamarajanagara', 'Mandya', 'Hassan',
+  'Kodagu', 'Dakshina Kannada', 'Udupi', 'Shivamogga', 'Chikkamagaluru',
+  'Davanagere', 'Chitradurga', 'Belagavi', 'Dharwad', 'Gadag',
+  'Hubballi-Dharwad', 'Haveri', 'Uttara Kannada', 'Bagalkote', 'Vijayapura',
+  'Kalaburagi', 'Yadgir', 'Raichur', 'Koppal', 'Ballari', 'Bidar',
+  'Mangaluru',
 ]

@@ -9,17 +9,27 @@ const uploadDir = process.env.VERCEL
   ? path.join('/tmp', process.env.UPLOAD_DIR || 'uploads')
   : path.join(__dirname, '..', process.env.UPLOAD_DIR || 'uploads');
 
-// Ensure the writable tmp directory exists if on Vercel
-if (process.env.VERCEL) {
-  const fs = require('fs');
+// Ensure the uploads folder exists
+const fs = require('fs');
+if (!fs.existsSync(uploadDir)) {
   try {
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    fs.mkdirSync(uploadDir, { recursive: true });
   } catch (e) {
-    console.warn("⚠️ Tmp uploads folder creation warning:", e.message);
+    console.warn("⚠️ Uploads folder creation warning:", e.message);
   }
 }
 
-const upload = multer({ dest: uploadDir });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname || ''));
+  }
+});
+
+const upload = multer({ storage: storage });
 
 // Complaint API endpoints
 router.post('/detect', authenticateToken, upload.single('image'), complaintController.detectImage);
