@@ -5,23 +5,28 @@ const ThemeContext = createContext(null)
 export const useTheme = () => useContext(ThemeContext)
 
 export const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(true)
-  const [language, setLanguage] = useState('en')
+  const [isDark, setIsDark] = useState(() => {
+    // Initialize from localStorage, default to dark
+    const saved = localStorage.getItem('theme')
+    return saved ? saved === 'dark' : true
+  })
 
   useEffect(() => {
     const root = document.documentElement
     if (isDark) {
       root.classList.add('dark')
+      root.classList.remove('light')
     } else {
       root.classList.remove('dark')
+      root.classList.add('light')
     }
+    localStorage.setItem('theme', isDark ? 'dark' : 'light')
   }, [isDark])
 
-  const toggleTheme = () => setIsDark(!isDark)
-  const toggleLanguage = () => setLanguage(prev => prev === 'en' ? 'kn' : 'en')
+  const toggleTheme = () => setIsDark(prev => !prev)
 
   return (
-    <ThemeContext.Provider value={{ isDark, toggleTheme, language, toggleLanguage }}>
+    <ThemeContext.Provider value={{ isDark, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   )

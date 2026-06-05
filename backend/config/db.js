@@ -20,7 +20,7 @@ async function seedDatabase() {
       ]);
       console.log('✅ Default accounts seeded: admin@karnataka.gov.in / citizen@karnataka.gov.in');
     }
-  } catch (err) { console.error('❌ Seeding Error:', err); }
+  } catch (err) { console.error('❌ \Seeding Error:', err); }
 }
 
 let connectionPromise = null;
